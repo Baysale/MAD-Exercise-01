@@ -7,6 +7,18 @@ class App {
     // Game logic for a number guessing game
     fun playNumberGame(digitsToGuess: Int = 4) {
         //TODO: build a menu which calls the functions and works with the return values
+        val generatedNumber = generateRandomNonRepeatingNumber(digitsToGuess)
+        var guess: Int
+        var result: CompareResult
+
+        do {
+            println("Guess the $digitsToGuess digit number:")
+            guess = readLine()?.toIntOrNull() ?: 0
+            result = checkUserInputAgainstGeneratedNumber(guess, generatedNumber)
+            println(result)
+        } while (result.m != digitsToGuess)
+
+        println("Sir or Ma'am, you made it! You guessed the right number: $generatedNumber")
     }
 
     /**
@@ -25,7 +37,8 @@ class App {
      */
     val generateRandomNonRepeatingNumber: (Int) -> Int = { length ->
         //TODO implement the function
-        0   // return value is a placeholder
+        if (length < 1 || length > 9) throw IllegalArgumentException("Length must be between 1 and 9.")
+        (1..9).toList().shuffled().take(length).joinToString("").toInt()
     }
 
     /**
@@ -46,11 +59,34 @@ class App {
      */
     val checkUserInputAgainstGeneratedNumber: (Int, Int) -> CompareResult = { input, generatedNumber ->
         //TODO implement the function
-        CompareResult(0, 0)   // return value is a placeholder
+        val inputDigits = input.toString().map { it }
+        val generatedDigits = generatedNumber.toString().map { it }
+
+        if (inputDigits.size != generatedDigits.size) {
+            throw IllegalArgumentException("The number of digits in the input and the generated number must be the same.")
+        }
+
+        var correctPositions = 0
+        val checkedDigits = mutableSetOf<Char>()
+
+        inputDigits.forEachIndexed { index, digit ->
+            if (digit in generatedDigits) {
+                checkedDigits.add(digit)
+                if (digit == generatedDigits[index]) {
+                    correctPositions++
+                }
+            }
+        }
+
+        CompareResult(checkedDigits.size, correctPositions)
     }
 }
 
 fun main() {
     println("Hello World!")
     // TODO: call the App.playNumberGame function with and without default arguments
+    val app = App()
+    //app.playNumberGame()
+    app.playNumberGame(2)
 }
+
